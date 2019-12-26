@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import logging
 import telepot
 import time
@@ -7,25 +6,11 @@ import datetime
 
 from telepot.loop import MessageLoop
 from telepot.namedtuple import ReplyKeyboardRemove
-from termcolor import colored, cprint
 
 import telegramcalendar
 
 
 TOKEN = ""
-
-def logMsg(msg,tipo):
-    dt = datetime.datetime.now().strftime("%d-%m-%Y %H:%M")
-    tipo = tipo.upper()
-    if tipo == "ERROR":
-        tipo = colored(tipo, "red")
-    elif tipo == "INFO":
-        tipo = colored(tipo, "green")
-    elif tipo == "WARNING":
-        tipo = colored(tipo, "yellow")
-
-    print(tipo + " ["+dt+"]" +": " + msg)
-
 
 def calendar_handler(msg):
     chat_id = telepot.glance(msg)[2]
@@ -38,24 +23,10 @@ def inline_handler(msg):
     if selected:
         bot.sendMessage(chat_id,"You selected %s" % (date.strftime("%d/%m/%Y")), reply_markup=ReplyKeyboardRemove())
 
-
 if TOKEN == "":
     print("Please write TOKEN into file")
 else:
-    try:
-
-        # Inicializando Chats Autorizados
-        logMsg("Iniciando Bot","Info")
-        bot = telepot.Bot(TOKEN)
-        #Inicia Hilo escucha del chatbot
-        MessageLoop(bot, {'chat': calendar_handler,'callback_query': inline_handler}).run_as_thread()
-
-        #### The main loop ####
-        while True:     
-            time.sleep(300)
-
-    #### Cleaning up at the end
-    except KeyboardInterrupt:
-        pass
-    except SystemExit:
-        pass
+    tbot = telepot.Bot(TOKEN)
+    MessageLoop(bot, {'chat': calendar_handler,'callback_query': inline_handler}).run_as_thread()
+    while True:     
+        time.sleep(300)
