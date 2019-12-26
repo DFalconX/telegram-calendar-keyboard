@@ -12,7 +12,7 @@ from termcolor import colored, cprint
 import telegramcalendar
 
 
-TOKEN = "1037995722:AAGBO4alsSjOl0cxQYSD9cdyQ2LTTZRpEts"
+TOKEN = ""
 
 def logMsg(msg,tipo):
     dt = datetime.datetime.now().strftime("%d-%m-%Y %H:%M")
