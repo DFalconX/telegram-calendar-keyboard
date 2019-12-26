@@ -1,44 +1,61 @@
 #!/usr/bin/python3
 
 import logging
+import telepot
+import time
+import datetime
 
-from telegram.ext import Updater
-from telegram.ext import  CallbackQueryHandler
-from telegram.ext import  CommandHandler
-from telegram import  ReplyKeyboardRemove
-
+from telepot.loop import MessageLoop
+from telepot.namedtuple import ReplyKeyboardRemove
+from termcolor import colored, cprint
 
 import telegramcalendar
 
 
-TOKEN = ""
+TOKEN = "1037995722:AAGBO4alsSjOl0cxQYSD9cdyQ2LTTZRpEts"
+
+def logMsg(msg,tipo):
+    dt = datetime.datetime.now().strftime("%d-%m-%Y %H:%M")
+    tipo = tipo.upper()
+    if tipo == "ERROR":
+        tipo = colored(tipo, "red")
+    elif tipo == "INFO":
+        tipo = colored(tipo, "green")
+    elif tipo == "WARNING":
+        tipo = colored(tipo, "yellow")
+
+    print(tipo + " ["+dt+"]" +": " + msg)
 
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-
-logger = logging.getLogger(__name__)
-
-def calendar_handler(bot,update):
-    update.message.reply_text("Please select a date: ",
-                        reply_markup=telegramcalendar.create_calendar())
+def calendar_handler(msg):
+    chat_id = telepot.glance(msg)[2]
+    bot.sendMessage(chat_id, "Please select a date: ", reply_markup=telegramcalendar.create_calendar())
 
 
-def inline_handler(bot,update):
-    selected,date = telegramcalendar.process_calendar_selection(bot, update)
+def inline_handler(msg):
+    chat_id = msg['message']['chat']['id']
+    selected,date = telegramcalendar.process_calendar_selection(bot, msg)
     if selected:
-        bot.send_message(chat_id=update.callback_query.from_user.id,
-                        text="You selected %s" % (date.strftime("%d/%m/%Y")),
-                        reply_markup=ReplyKeyboardRemove())
+        bot.sendMessage(chat_id,"You selected %s" % (date.strftime("%d/%m/%Y")), reply_markup=ReplyKeyboardRemove())
 
 
 if TOKEN == "":
     print("Please write TOKEN into file")
 else:
-    up = Updater("TOKEN")
+    try:
 
-    up.dispatcher.add_handler(CommandHandler("calendar",calendar_handler))
-    up.dispatcher.add_handler(CallbackQueryHandler(inline_handler))
+        # Inicializando Chats Autorizados
+        logMsg("Iniciando Bot","Info")
+        bot = telepot.Bot(TOKEN)
+        #Inicia Hilo escucha del chatbot
+        MessageLoop(bot, {'chat': calendar_handler,'callback_query': inline_handler}).run_as_thread()
 
-    up.start_polling()
-    up.idle()
+        #### The main loop ####
+        while True:     
+            time.sleep(300)
+
+    #### Cleaning up at the end
+    except KeyboardInterrupt:
+        pass
+    except SystemExit:
+        pass
